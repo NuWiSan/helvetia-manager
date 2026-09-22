@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const code=fs.readFileSync(require('node:path').join(__dirname,'../dist/countries.js'),'utf8');
+const context=vm.createContext({Intl,console,encodeURIComponent,window:undefined,esc:x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))});
+vm.runInContext(code,context);
+assert.equal(vm.runInContext("resolveCountry('Portugal')",context),'pt');
+assert.equal(vm.runInContext("resolveCountry('Suíça')",context),'ch');
+assert.equal(vm.runInContext("resolveCountry('POR')",context),'pt');
+assert.match(vm.runInContext("countryFlag('Portugal')",context),/flags\/pt\.svg/);
+assert.match(vm.runInContext("countryFlag('Suíça')",context),/flags\/ch\.svg/);
+console.log('PASS: country resolution and local SVG flag asset paths.');

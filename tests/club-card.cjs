@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const ctx=vm.createContext({esc:s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;'),badge:()=>'<span class="badge"></span>',divisionLabel:()=> 'Super League'});
+ctx.Engine=require('../dist/game.js');
+vm.runInContext(fs.readFileSync(require.resolve('../dist/card-identity.js'),'utf8'),ctx);
+vm.runInContext(fs.readFileSync(require.resolve('../dist/record-editor.js'),'utf8'),ctx);
+ctx.c={name:'Clube teste',city:'Cidade <teste>',stadium:'Estádio exemplo',color:'#123456',stadiumCapacity:18000};
+const card=vm.runInContext('clubVisual(c)',ctx),detail=vm.runInContext('clubVisual(c,true)',ctx);
+assert.match(card,/club-card-meta/);assert.match(card,/Cidade &lt;teste>/);assert.match(card,/Estádio exemplo/);assert.doesNotMatch(card,/18000/);
+assert.match(detail,/club-visual-large/);assert.doesNotMatch(detail,/club-card-meta/);
+ctx.c.stadiumPhoto='data:image/png;base64,AAAA';assert.match(vm.runInContext('clubVisual(c)',ctx),/loading="lazy"/);
+console.log('PASS: compact club metadata, escaped city, stadium name, optional image and unchanged detail header.');

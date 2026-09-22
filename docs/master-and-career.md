@@ -1,0 +1,13 @@
+# Master database and career modes
+
+`World` centralizes the shared record schema (`clubs`, `players`, `staff`, `competitions`) and the deep-copy boundary. The master has only these records and database metadata; it has no managed club, current fixtures, scores or live match. The initial data uses the existing seed generator, not another collection of player definitions.
+
+`World.context` is an ephemeral validation/editor adapter that supplies the legacy editor's reference date and empty-calendar metadata. Its record arrays reference the master directly. It is not a career and simulation entrypoints reject its `database` kind. `World.createCareer` deep-clones all shared records, supplies new career state and regenerates fixtures through the existing engine. Careers and the master use identical player/club/staff field definitions and validators. No sync process can modify an existing career from master edits.
+
+The app opens on the mode chooser with no career in progress. Existing editors point to the selected context. Switching away from a live career pauses it and retains the same career object. Returning restores the match, PRNG state, results and original snapshot. Starting another career asks before replacing the current session; saving/loading career files preserves the existing file-based workflow.
+
+The master is saved/loaded separately as a `kind: database` JSON file. A career JSON is not accepted as a master file, except via the explicit 'Importar dados de uma carreira' action, which retains identity/media/contracts and drops simulated player totals, fatigue, injuries and suspensions. It never modifies the source career. Loading a career likewise never overwrites the master. State remains in memory between mode switches; closing/reloading requires the saved files. No localStorage mirror or new server persistence was introduced.
+
+The new competition editor supports names, countries, notes, win/draw/loss points and exchanging initial clubs between the two divisions. These are snapshotted and the engine's existing table/promotion calculation reads the snapshotted point rules. The supported structure remains 12/10 clubs, two legs, one promoted/relegated side; arbitrary competition structures are not implied.
+
+Verification: `node tests/world.cjs` tests nested-copy isolation, multiple snapshots, same-schema edits, simulation isolation, round-trip import/export, point rules, division allocation and legacy validation. UI flow was exercised with DOM stubs, including switching to the master during a paused career and resuming the unaffected match. No browser visual QA was performed.

@@ -1,0 +1,14 @@
+{
+  "name": "helvetia-manager",
+  "private": true,
+  "version": "12.25.0-beta.1",
+  "description": "Static application; development dependencies are used only for tests.",
+  "scripts": {
+    "test:v12": "node tests/persistence-and-search.cjs",
+    "test": "node tests/csv-labels.cjs && node tests/card-artwork.cjs && node tests/identity-presentation.cjs && node tests/database-ops.cjs && node tests/csv-import.cjs && node tests/documentary.cjs && node tests/documentary-journey.cjs && node tests/documentary-ui.cjs && node tests/stadium-framing.cjs && node tests/club-colors.cjs && node tests/foundation-csv.cjs && node tests/club-card.cjs && node tests/club-staff.cjs && node tests/international-records.cjs && node tests/image-optimization.cjs && node tests/persistence-and-search.cjs && node tests/countries.cjs && node tests/competition-model.cjs && node tests/world.cjs && node tests/player-engine.cjs && node tests/match-engine.cjs && node tests/cup-engine.cjs"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "6.0.0",
+    "jsdom": "26.0.0"
+  }
+}

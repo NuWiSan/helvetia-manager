@@ -1,0 +1,31 @@
+const defaultPlayerFilters=()=>({query:'',club:'all',position:'all',nation:'all',verification:'all',minAge:'',maxAge:'',photo:'all',birth:'all',contract:'all',status:'all',international:'all',theme:'all',completeness:'all',sort:'name'});
+let playerFilters=defaultPlayerFilters(),playerPage=0;
+function renderPlayerBrowser(){
+ const countries=new Map();
+ for(const p of master.players)for(const n of [p.nation,p.secondNation])if(n){const code=resolveCountry(n);countries.set(code||PlayerSearch.normalize(n),code?countryName(code):n);}
+ const select=(key,label,values)=>`<label>${label}<select id="search-${key}">${values.map(([v,t])=>`<option value="${esc(v)}" ${playerFilters[key]===String(v)?'selected':''}>${esc(t)}</option>`).join('')}</select></label>`;
+ $('app').innerHTML=`<section class="panel"><div class="panel-head"><div><h2>Todos os jogadores</h2><p class="muted">Pesquisa na Base de Dados Mestre, incluindo jogadores sem clube. Abre uma ficha para editar.</p></div><button id="searchAdd" class="primary">+ Jogador</button></div><div class="search-filters"><label class="search-wide">Nome do jogador ou clube<input id="search-query" type="search" maxlength="200" placeholder="Nome conhecido, nome completo ou clube…" value="${esc(playerFilters.query)}"></label>${select('club','Clube',[['all','Todos os clubes'],['free','Sem clube'],...master.clubs.map(c=>[String(c.id),c.name]).sort((a,b)=>a[1].localeCompare(b[1],'pt'))])}${select('position','Posição principal ou secundária',[['all','Todas'],...Engine.positions.map(p=>[p,p])])}${select('nation','Nacionalidade principal ou secundária',[['all','Todas'],...[...countries].sort((a,b)=>a[1].localeCompare(b[1],'pt'))])}${select('verification','Verificação',[['all','Todos os estados'],...['Por verificar','Parcial','Confirmado'].map(v=>[v,v])])}<label>Idade mínima<input id="search-minAge" type="number" min="0" max="120" value="${esc(playerFilters.minAge)}"></label><label>Idade máxima<input id="search-maxAge" type="number" min="0" max="120" value="${esc(playerFilters.maxAge)}"></label>${select('photo','Fotografia',[['all','Com e sem fotografia'],['present','Com fotografia'],['missing','Sem fotografia']])}${select('birth','Nascimento',[['all','Com e sem data'],['present','Com data'],['missing','Sem data']])}${select('contract','Contrato',[['all','Todos'],['missing','Datas incompletas'],['present','Datas preenchidas']])}${select('status','Estado',[['all','Todos'],...['Activo','Lesionado','Emprestado','Sem clube','Retirado'].map(v=>[v,v])])}${select('international','Internacionalizações',[['all','Todos'],['senior','Internacional A'],['youth','Internacional jovem'],['both','Principal e jovens']])}${select('theme','Raridade',[['all','Todas'],['base','Base'],['silver','Prata'],['gold','Ouro']])}${select('completeness','Dados documentais',[['all','Todos'],['complete','Completos (critérios actuais)'],['incomplete','Incompletos']])}${select('sort','Ordenar por',[['name','Nome'],['club','Clube'],['age','Idade crescente'],['verified','Verificação mais recente']])}</div><div class="toolbar"><button id="searchClear">Limpar filtros</button><span class="muted">Idades em 1 de Julho de ${master.year}. Contratos: início e fim para jogadores com clube, não retirados. Internacional: pelo menos uma internacionalização registada.</span></div>${playerViewControls()}${bulkControls()}<p id="searchCount" role="status"></p><div id="searchResults"></div><div id="searchPages" class="search-pages"></div></section>`;
+ for(const key of Object.keys(playerFilters)){
+  const input=$('search-'+key);
+  input.addEventListener(['query','minAge','maxAge'].includes(key)?'input':'change',()=>{selectedPlayers.clear();playerFilters[key]=input.value;playerPage=0;drawPlayerResults();});
+ }
+ $('searchClear').onclick=()=>{selectedPlayers.clear();playerFilters=defaultPlayerFilters();playerPage=0;renderPlayerBrowser();};
+ $('searchAdd').onclick=()=>{editorClub=playerFilters.club!=='all'?playerFilters.club==='free'?'free':+playerFilters.club:'free';openPlayer(null);};
+ bindPlayerViewControls();
+ bindBulkControls();
+ drawPlayerResults();
+}
+function drawPlayerResults(){
+ const rows=PlayerSearch.find(master,playerFilters,resolveCountry),pageSize=50,totalPages=Math.max(1,Math.ceil(rows.length/pageSize));
+ playerPage=Math.min(playerPage,totalPages-1);
+ const shown=rows.slice(playerPage*pageSize,(playerPage+1)*pageSize);
+ $('searchCount').textContent=rows.length+' de '+master.players.length+' jogadores';
+ $('searchResults').innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>JOGADOR</th><th>CLUBE</th><th>POS.</th><th>IDADE</th><th>NACIONALIDADE</th><th>VERIFICAÇÃO</th><th>COMPLETUDE</th></tr></thead><tbody>${shown.map(p=>`<tr><td>${p.photo?`<img class="staff-thumb" src="${esc(p.photo)}" alt="">`:''}<button class="player-name" data-search-player="${p.id}">${esc(p.name)}</button>${p.fullName&&p.fullName!==p.name?`<small class="search-fullname">${esc(p.fullName)}</small>`:''}</td><td><button class="player-name" data-search-club="${p.club}" ${p.club===null?'disabled':''}>${esc(master.clubs.find(c=>c.id===p.club)?.name||'Sem clube')}</button></td><td>${esc(p.position)}</td><td>${PlayerSearch.age(p,master.year)??'—'}</td><td>${playerNationalityList(p)}</td><td>${esc(Documentary.verification(p))}${p.lastVerifiedAt?`<small class="search-fullname">${esc(p.lastVerifiedAt)}</small>`:''}</td><td>${Documentary.completeness(p,master).percent}%</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">Nenhum jogador corresponde aos filtros. Experimenta limpar ou alargar a pesquisa.</p>';
+ $('searchPages').innerHTML=`<button id="searchPrevious" ${playerPage===0?'disabled':''}>Anterior</button><span>Página ${playerPage+1} de ${totalPages}</span><button id="searchNext" ${playerPage+1>=totalPages?'disabled':''}>Seguinte</button>`;
+ $('searchPrevious').onclick=()=>{playerPage--;drawPlayerResults();};
+ $('searchNext').onclick=()=>{playerPage++;drawPlayerResults();};
+ applyPlayerView(shown);
+ applyBulkSelection(shown);
+ document.querySelectorAll('[data-search-player]').forEach(b=>b.onclick=()=>openPlayer(+b.dataset.searchPlayer));
+ document.querySelectorAll('[data-search-club]').forEach(b=>b.onclick=()=>showClub(+b.dataset.searchClub));
+}

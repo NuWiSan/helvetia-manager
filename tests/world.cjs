@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict'),E=require('../dist/game.js'),W=require('../dist/world.js');
+const master=W.fresh();W.validate(master);assert.equal(master.fixtures,undefined);assert.equal(master.managed,undefined);
+const context=W.context(master);E.updatePlayer(context,1200,{name:'Nome da Mestre',attributes:{passing:17},photo:'data:image/png;base64,AAAA'});master.clubs[12].logo='data:image/png;base64,AAAA';
+assert.equal(master.players.find(p=>p.id===1200).name,'Nome da Mestre');assert.throws(()=>E.advance(context));assert.throws(()=>E.startRound(context));
+const career=W.createCareer(master,12,'Carreira A'),b=W.createCareer(master,13,'Carreira B');assert.notEqual(career.players,master.players);assert.notEqual(career.players[0],master.players[0]);assert.notEqual(career.players.find(p=>p.id===1200).attributes,master.players.find(p=>p.id===1200).attributes);
+E.updatePlayer(context,1200,{name:'Alterado depois'});master.players.find(p=>p.id===1200).attributes.passing=2;master.clubs[12].logo='';master.competitions[1].pointsWin=5;
+assert.equal(career.players.find(p=>p.id===1200).name,'Nome da Mestre');assert.equal(career.players.find(p=>p.id===1200).attributes.passing,17);assert.equal(career.clubs[12].logo,'data:image/png;base64,AAAA');assert.equal(career.competitions[1].pointsWin,3);
+E.updatePlayer(career,1200,{name:'Editado só na carreira'});assert.equal(master.players.find(p=>p.id===1200).name,'Alterado depois');assert.equal(b.players.find(p=>p.id===1200).name,'Nome da Mestre');
+const before=JSON.stringify(master);E.advance(career,()=>.33);assert.equal(JSON.stringify(master),before);E.validate(career);W.validate(JSON.parse(JSON.stringify(master)));E.validate(JSON.parse(JSON.stringify(career)));
+W.swapDivisions(master,0,12);const next=W.createCareer(master,12);assert.equal(next.clubs.find(c=>c.id===12).div,0);assert.equal(career.clubs.find(c=>c.id===12).div,1);assert.equal(next.round,0);assert.equal(next.players[0].stats,undefined);
+const source=JSON.stringify(career),derived=W.fromCareer(career);assert.equal(derived.players[0].stats,undefined);assert.equal(derived.liveMatch,undefined);assert.equal(JSON.stringify(career),source);
+const custom=W.createCareer(master,13);const f=custom.fixtures[1][0][0];f.hg=1;f.ag=0;assert.equal(E.table(custom,1).find(c=>c.id===f.home).pts,5);assert.equal(E.table(career,1).find(c=>c.id===career.fixtures[1][0][0].home).pts,career.fixtures[1][0][0].hg>career.fixtures[1][0][0].ag?3:career.fixtures[1][0][0].hg===career.fixtures[1][0][0].ag?1:0);
+assert.throws(()=>W.validate({...master,liveMatch:{}}));assert.throws(()=>W.validate({...master,competitions:undefined}));assert.throws(()=>W.createCareer(master,999));E.validate(E.fresh());
+console.log('PASS: standalone master, same record schema, nested snapshot isolation, two careers, simulation isolation, imports, custom points and division allocation.');

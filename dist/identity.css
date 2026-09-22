@@ -1,0 +1,97 @@
+/* Helvetia v12.21 — shared presentation. Layout and game rules remain in style.css. */
+:root {
+  --font-body:Inter,Arial,sans-serif;
+  --font-display:'Barlow Condensed','Arial Narrow',sans-serif;
+  --surface:#192129;
+  --surface-inset:#121b24;
+  --surface-hover:#263441;
+  --border-soft:#35434f;
+  --radius-control:7px;
+  --radius-panel:12px;
+  --radius-card:18px;
+  --shadow-card:0 10px 26px #0003;
+  --space-section:20px;
+}
+body {font-family:var(--font-body)}
+h1,h2,.club-visual-identity h3,.staff-card-name h2 {font-family:var(--font-display);line-height:1.15}
+button {border-radius:var(--radius-control);transition:background .16s,border-color .16s,box-shadow .16s}
+button:not(:disabled):hover {border-color:#687b8b}
+button:disabled {cursor:not-allowed}
+:where(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]) {border-radius:var(--radius-control);line-height:1.4}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible {outline:2px solid var(--green);outline-offset:3px}
+.panel:not(.club-photo-card),.stat,.competition-card {border-radius:var(--radius-panel)}
+dialog {border-radius:var(--radius-panel);border:1px solid #52616e;box-shadow:0 24px 70px #0008;scrollbar-gutter:stable;max-width:calc(100vw - 24px)}
+dialog::backdrop {background:#050b12b8;backdrop-filter:blur(3px)}
+.dialog-head {gap:16px;align-items:center}
+.dialog-head h2 {line-height:1.2}
+.dialog-head>button:last-child {min-width:36px;min-height:36px}
+.player-tabs {gap:8px;padding-bottom:16px}
+.player-tabs button {line-height:1.3;min-height:38px}
+.player-tabs [aria-selected=true] {box-shadow:inset 0 -2px var(--red)}
+.player-save,.record-actions,.competition-actions {gap:12px}
+.player-save,.record-actions {z-index:6}
+.club-info-section,.competition-media-editor,.player-summary,.photo-framing,.movement-box,.history-editor>fieldset,.club-colors-editor {border-color:var(--border-soft);border-radius:var(--radius-panel);background:var(--surface-inset)}
+.club-info-section h3,.competition-media-editor h3 {font:600 23px/1.2 var(--font-display);margin-bottom:16px}
+.club-info-section dt,.person-text small {color:var(--muted)}
+.person-row {border-radius:var(--radius-control);background:var(--surface);border-color:var(--border-soft)}
+.person-row:hover {background:var(--surface-hover)}
+.person-avatar {border-radius:var(--radius-control);background:#0d1721}
+.identity-banner {background:none;border:0;padding:0 0 20px}
+.identity-name-line h2,#playerEditor .identity-name-line h2 {font-family:var(--font-display)}
+.identity-score {font-variant-numeric:tabular-nums}
+/* v12.22 — artwork shared by club list/detail, player list/editor and staff. */
+.premium-surface{position:absolute;inset:0;z-index:0;overflow:hidden;border-radius:inherit;pointer-events:none;background:radial-gradient(ellipse at 20% 18%,color-mix(in srgb,var(--card-primary) 24%,#111),transparent 66%),linear-gradient(135deg,var(--card-secondary),#070b10)}
+.premium-art,.premium-grain,.premium-shade,.premium-edge{position:absolute;inset:0}
+.premium-art{z-index:0;overflow:hidden}
+.premium-surface .club-stadium-cover{z-index:0;filter:saturate(.9) contrast(1.08)}
+.premium-waves{display:block;width:100%;height:100%;overflow:visible;opacity:.85}
+.premium-waves .wave-colour{fill:var(--card-primary);opacity:.12}
+.premium-waves .wave-soft{fill:var(--card-primary);opacity:.055;filter:blur(7px)}
+.premium-waves .wave-glow{fill:none;stroke:var(--card-primary);stroke-width:38px;opacity:.13;filter:blur(19px)}
+.premium-waves .wave-line{fill:none;stroke:var(--card-primary);stroke-width:1.4px;opacity:.28;filter:blur(.5px)}
+.premium-waves .wave-secondary{fill:none;stroke:color-mix(in srgb,var(--card-secondary) 65%,white);stroke-width:20px;opacity:.07;filter:blur(12px)}
+.premium-watermark{position:absolute;z-index:2;right:-6%;top:14%;width:70%;height:82%;object-fit:contain;opacity:.07;filter:grayscale(1);transform:rotate(-15deg)}
+.premium-grain{z-index:1;background:repeating-linear-gradient(100deg,transparent 0 2px,#ffffff08 2.5px,transparent 3px 6px);opacity:.3}
+.premium-shade{z-index:1;background:linear-gradient(0deg,#070b10f5,transparent 68%)}
+.premium-photo .premium-shade{background:linear-gradient(0deg,#070b10 0%,#070b10e6 19%,#070b1055 47%,transparent 73%),linear-gradient(105deg,#070b1070,transparent 60%)}
+.premium-edge{z-index:3;border-radius:inherit;box-shadow:inset 0 0 0 1px #ffffff24;background:linear-gradient(130deg,transparent 0 10%,color-mix(in srgb,var(--card-primary) 22%,transparent) 10.1%,transparent 10.4% 91%,#ffffff1a 91.1%,transparent 91.4%)}
+.premium-photo .premium-edge{background:linear-gradient(130deg,transparent 0 16%,color-mix(in srgb,var(--card-primary) 55%,transparent) 16.1%,transparent 19% 87%,color-mix(in srgb,var(--card-primary) 35%,transparent) 87.2%,transparent 90%)}
+.club-photo-card.panel,.club-visual-large,.staff-card,.sticker{--card-metal:#526371;--rarity-color:#d8e1e8;border-width:6px}
+.sticker.edition-base{border-color:#526371;background:#18232d}
+.sticker.edition-base .strip{background:#263441;color:#f1f5f8;border-top:1px solid #637687}
+.sticker.edition-base .strip .sub{color:#c5d2dc}
+.sticker.edition-silver{--card-metal:#e5eef7;--rarity-color:#e5eef7;border-color:transparent;background:linear-gradient(#111720,#111720) padding-box,linear-gradient(135deg,#fafcff 0%,#8797a8 17%,#e9f1f9 32%,#677b8e 48%,#f8fcff 63%,#94a7ba 80%,#eef5fc 100%) border-box}
+.sticker.edition-gold{--card-metal:#f3cd64;--rarity-color:#f3cd64;border-color:transparent;background:linear-gradient(#111720,#111720) padding-box,linear-gradient(135deg,#fff0ae 0%,#aa7728 17%,#f6d876 32%,#8c5f1d 48%,#fff2b8 63%,#c79537 80%,#f9df8b 100%) border-box}
+.sticker.edition-silver .strip{background:linear-gradient(112deg,#899baa 0%,#edf4fb 28%,#b8c8d7 49%,#f8fcff 66%,#9aafc0 100%);color:#0b1722;border-top:1px solid #f3f8ff;box-shadow:inset 0 -1px #71899e}
+.sticker.edition-gold .strip{background:linear-gradient(112deg,#bc8b35 0%,#ffe49a 28%,#dcaf4b 49%,#fff0b3 66%,#c4953c 100%);color:#251905;border-top:1px solid #fff2bd;box-shadow:inset 0 -1px #997225}
+.sticker.edition-silver .strip .sub{color:#1a2d3d}.sticker.edition-gold .strip .sub{color:#3c2b0b}
+.sticker.edition-silver .rating{color:#eef6ff;text-shadow:0 1px 0 #5c7188,0 2px 3px #000b}
+.sticker.edition-gold .rating{color:#ffe39a;text-shadow:0 1px 0 #87601b,0 2px 3px #000b}
+.sticker .premium-watermark{top:7%;right:-12%;width:86%;height:65%;opacity:.08}
+.sticker .premium-shade{background:linear-gradient(0deg,#070b1080,transparent 65%)}
+.sticker .sticker-bottom,.sticker .collection{position:relative;z-index:3}
+.sticker .strip h2{font-family:var(--font-display);line-height:1.15}
+.staff-card{--card-metal:#c9d3df;gap:0}
+.staff-card>.staff-card-top,.staff-card>.staff-card-photo,.staff-card>.staff-card-placeholder,.staff-card>.staff-card-name,.staff-card>p{position:relative;z-index:2}
+.staff-card-top{border:0;padding:16px 18px}
+.staff-card-name .staff-function{color:#e0e8ef;font-size:13px;letter-spacing:.8px;padding-bottom:10px;border-bottom:2px solid var(--card-primary)}
+.staff-card-name h2{font-family:var(--font-display);font-size:28px;line-height:1.15}
+.staff-card>p{color:#c5d1dc;font-size:14px}
+.staff-card-photo{object-fit:contain;object-position:center;margin-left:16px}
+@media(max-width:650px){.club-photo-card .club-visual-identity h3{font-size:29px}.club-visual-large h2{font-size:34px}.club-visual-large,.club-visual-large .club-visual-identity{min-height:320px}}
+.competition-card {border-color:var(--border-soft);box-shadow:0 5px 18px #0001}
+.competition-card-head {align-items:flex-start;gap:20px}
+.competition-card-head .competition-image,.competition-card-head .competition-image.trophy {border-radius:var(--radius-panel);background:var(--surface-inset);border-color:var(--border-soft)}
+.competition-browser-card {border-radius:var(--radius-panel);background:var(--surface-inset);border-color:var(--border-soft)}
+@media(max-width:650px){.player-tabs{gap:6px}.player-tabs button{padding:9px}.club-visual-large .club-visual-identity{padding-left:18px;padding-right:18px}.staff-card-name h2{font-size:25px}.club-info-section{padding:16px}.competition-actions{justify-content:flex-start}.club-photo-card .toolbar{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){button{transition:none}}
+/* v12.25 — artwork stays behind content; metadata icons never size the card. */
+.club-visual-identity{position:relative;z-index:1}
+.club-card-meta,.club-detail-meta{display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:8px 18px;color:#e4eaf0;font-size:14px;line-height:1.4}
+.club-card-meta>span,.club-detail-meta>span{display:inline-flex;align-items:center;gap:7px;min-width:0;overflow-wrap:anywhere}
+.club-card-meta>span:last-child{margin-left:0;text-align:left;max-width:100%}
+.club-card-meta svg,.club-detail-meta svg{display:block;width:20px;height:20px;flex:0 0 20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#clubDetails{width:1120px;max-width:calc(100vw - 24px)}
+#clubDetails .club-visual-large{min-height:340px}
+#clubDetails .club-visual-large .club-visual-identity{min-height:340px;padding:150px 24px 24px}
+@media(max-width:650px){#clubDetails{padding:16px}#clubDetails .club-visual-large,#clubDetails .club-visual-large .club-visual-identity{min-height:300px}#clubDetails .club-visual-large .club-visual-identity{padding:125px 16px 18px}.club-detail-meta{gap:8px 12px}}
