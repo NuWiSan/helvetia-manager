@@ -1,6 +1,6 @@
-# Helvetia Manager v12.25 beta
+# Helvetia Manager v12.28 beta
 
-Correcção das camadas dos cartões de clube e da dimensão da ficha. Ver [CHANGELOG-v12.25.md](CHANGELOG-v12.25.md) e [dados e backups](docs/dados-e-backups.md). Todas as versões são beta até indicação em contrário.
+Importação completa de jogadores com revisão de correspondências, processamento em lotes e gravação protegida. Ver [CHANGELOG-v12.28.md](CHANGELOG-v12.28.md) e [dados e backups](docs/dados-e-backups.md). Todas as versões são beta até indicação em contrário.
 
 # Helvetia Manager v12.11
 

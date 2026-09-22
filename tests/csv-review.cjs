@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict'),W=require('../dist/world.js'),C=require('../dist/csv-import.js'),Ops=require('../dist/database-ops.js');
+(async()=>{
+ const m=W.fresh(),baseline=JSON.stringify(m),p=m.players[0];
+ const r=C.reviewPlayers(m,`id;name;position\n${p.id};Pessoa diferente;MED\n99999;Pessoa nova;AVA`);
+ assert.equal(r.entries[0].status,'doubtful');assert.equal(r.entries[1].status,'new');
+ await assert.rejects(()=>C.resolvePlayers(m,r),/escolhe/);
+ r.entries[0].action='skip';r.entries[1].action='create';const created=await C.resolvePlayers(m,r);
+ assert.equal(created.candidate.players.at(-1).position,'AV');assert.notEqual(created.candidate.players.at(-1).id,99999);assert.equal(created.skipped,1);
+ const full=C.reviewPlayers(m,'id;height\n'+m.players.slice(0,260).map(p=>`${p.id};182`).join('\n'));let batches=0;
+ const result=await C.resolvePlayers(m,full,{onProgress:()=>batches++});assert.equal(result.summary.length,260);assert.equal(batches,6);W.validate(result.candidate);
+ await assert.rejects(()=>C.resolvePlayers(m,full,{cancelled:()=>true}),/cancelada/);
+ const stale=structuredClone(m);stale.name+=' alterada';await assert.rejects(()=>C.resolvePlayers(stale,full),/base mudou/);
+ const duplicate=C.reviewPlayers(m,`id;height\n${p.id};182\n${p.id};183`);assert(duplicate.entries.every(e=>e.action==='pending'));duplicate.entries.forEach(e=>e.action='update');await assert.rejects(()=>C.resolvePlayers(m,duplicate),/duas linhas/);
+ const match=C.reviewPlayers(m,`id;name\n999999;${p.name}`);assert.equal(match.entries[0].status,'doubtful');assert(match.entries[0].suggestions.some(s=>s.id===p.id));
+ const legacy=C.reviewPlayers(m,`id;birthDate;position;verificationStatus\n${p.id};30/09/2008;AVA;verified`);legacy.entries[0].action='update';const normalized=await C.resolvePlayers(m,legacy);assert.equal(normalized.candidate.players[0].birthDate,'2008-09-30');assert.equal(normalized.candidate.players[0].verificationStatus,'Confirmado');
+ const missing=C.reviewPlayers(m,'id;name;position\nNOVO;Sem posição;');await assert.rejects(()=>C.resolvePlayers(m,missing),/posição do novo/);
+ const nested=structuredClone(m);nested.players[0].photo='data:image/png;base64,AAAA';nested.players[0].customInfo={text:'preservar'};const preserved=await C.resolvePlayers(nested,C.reviewPlayers(nested,`id;height\n${p.id};183`));assert.equal(preserved.candidate.players[0].photo,nested.players[0].photo);assert.deepEqual(preserved.candidate.players[0].customInfo,nested.players[0].customInfo);
+ assert.equal(JSON.stringify(m),baseline);assert.equal(Ops.table(m,'players').columns.length,20);
+ console.log('PASS: full CSV review, 260 changes, collision decisions, duplicates, cancellation, stale review, documentary normalization and preservation.');
+})().catch(e=>{console.error(e);process.exitCode=1;});

@@ -31,6 +31,8 @@ const CsvImport=(()=>{
   const row={...input},key=v=>String(v??'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   const aliases={position:{ava:'AV'},status:{activo:'Activo',ativo:'Activo',active:'Activo',reformado:'Retirado',retirado:'Retirado'},verificationStatus:{verified:'Confirmado',verificado:'Confirmado',confirmado:'Confirmado'}};
   for(const [field,map] of Object.entries(aliases))if(Object.hasOwn(row,field)&&Object.hasOwn(map,key(row[field])))row[field]=map[key(row[field])];
+  for(const field of ['birthDate','contractStart','contractEnd']){const value=String(row[field]||'').trim(),match=value.match(/^(\d{2})([/.])(\d{2})\2(\d{4})$/);if(match)row[field]=`${match[4]}-${match[3]}-${match[1]}`;}
+  if(['SEM_CLUBE','null'].includes(String(row.club||'').trim())&&row.status==='Activo')row.status='Sem clube';
   return row;
  }
  function recordsPlan(master,type,parsed){
@@ -104,6 +106,51 @@ const CsvImport=(()=>{
   W.validate(candidate);return {candidate,summary,baseline:JSON.stringify(master),read:parsed.rows.length};
  }
  function template(type){return '\ufeff'+Ops.table({players:[],clubs:[],staff:[],competitions:[]},type).columns.map(c=>'"'+c+'"').join(';')+'\r\n';}
- return {types,fields,plan,template};
+ // Matching is advisory: an external ID never grants permission to overwrite a person.
+ function reviewPlayers(master,input){
+  if(master.kind!=='database')throw Error('Importação disponível apenas na Base Mestre.');
+  const parsed=Ops.parseCsv(input),allowed=Ops.table(master,'players').columns;
+  if(!parsed.columns.includes('id')||parsed.columns.some(k=>!allowed.includes(k)))throw Error('Cabeçalhos inválidos. Usa o modelo de jogadores existente.');
+  if(!parsed.rows.length)throw Error('CSV sem registos.');
+  const key=v=>D.normalize(String(v||'')),names=p=>[key(p.name),key(p.fullName)].filter(Boolean),byId=new Map(master.players.map(p=>[p.id,p]));
+  const entries=parsed.rows.map((original,index)=>{
+   const input=normalizePlayerLabels(original);
+   const raw=input.id.trim(),valid=raw==='NOVO'||(/^\d+$/.test(raw)&&Number.isSafeInteger(Number(raw))),old=raw==='NOVO'?null:byId.get(Number(raw)),incoming=names(input);
+   const suggestions=master.players.filter(p=>names(p).some(n=>incoming.includes(n))).map(p=>({id:p.id,name:p.name,birthDate:p.birthDate||'',club:p.club}));
+   const conflict=old&&((incoming.length&&!names(old).some(n=>incoming.includes(n)))||(input.birthDate?.trim()&&old.birthDate&&input.birthDate.trim()!==old.birthDate));
+   const status=!valid?'invalid':old&&!conflict?'existing':old||suggestions.length?'doubtful':'new';
+   return {line:index+2,input,status,suggestions,action:status==='existing'?'update':raw==='NOVO'&&status==='new'?'create':'pending',targetId:old?.id??null,reason:!valid?'ID inválido.':conflict?'O ID existe, mas a identidade não coincide.':old?'ID e dados de identidade compatíveis.':suggestions.length?'Há nomes semelhantes na Base Mestre. Confirmar a pessoa.':raw==='NOVO'?'Criação pedida no CSV.':'ID desconhecido: escolher criar ou associar a um jogador.'};
+  });
+  const ids=new Map(),identities=new Map();
+  for(const e of entries){const id=e.input.id.trim(),identity=key(e.input.fullName||e.input.name)+'|'+(e.input.birthDate||'');for(const [map,k] of [[ids,id==='NOVO'?'':id],[identities,identity==='|'?'':identity]])if(k){const previous=map.get(k);if(previous){for(const item of [previous,e]){item.status='doubtful';item.action='pending';item.reason='ID ou identidade repetida no ficheiro. Rever e ignorar a linha redundante.';}}else map.set(k,e);}}
+  return {baseline:JSON.stringify(master),columns:parsed.columns,entries,read:entries.length};
+ }
+ async function resolvePlayers(master,review,{onProgress=()=>{},cancelled=()=>false}={}){
+  if(JSON.stringify(master)!==review.baseline)throw Error('A base mudou. Selecciona novamente o ficheiro para refazer a revisão.');
+  const chosen=[],targets=new Set(),newIdentities=new Set();
+  for(const e of review.entries){
+   if(e.action==='skip')continue;
+   if(!['create','update'].includes(e.action))throw Error('Linha '+e.line+': escolhe uma acção ou ignora a linha.');
+   if(e.status==='invalid')throw Error('Linha '+e.line+': corrige o ID no CSV ou ignora a linha.');
+   if(e.action==='update'){
+    const target=Number(e.targetId);if(e.targetId===null||e.targetId===''||!Number.isSafeInteger(target)||!master.players.some(p=>p.id===target))throw Error('Linha '+e.line+': jogador de destino inexistente.');
+    if(targets.has(target))throw Error('Linha '+e.line+': duas linhas apontam para o mesmo jogador.');targets.add(target);
+   }else{
+    const identity=D.normalize(e.input.fullName||e.input.name||'')+'|'+(e.input.birthDate||'');if(newIdentities.has(identity))throw Error('Linha '+e.line+': criação repetida da mesma identidade.');newIdentities.add(identity);
+   }
+   chosen.push({entry:e,input:{...e.input,id:e.action==='create'?'NOVO':String(e.targetId)}});
+  }
+  let candidate=structuredClone(master);const summary=[];
+  // Reuse the established editor adapter and its validation, yielding between small batches.
+  for(let start=0;start<chosen.length;start+=50){
+   await new Promise(resolve=>setTimeout(resolve,0));if(cancelled())throw Error('Revisão cancelada.');
+   const batch=chosen.slice(start,start+50);let result;
+   try{result=recordsPlan(candidate,'players',{columns:review.columns,rows:batch.map(r=>r.input)});}
+   catch(error){throw Error(error.message.replace(/^Linha (\d+):/,(_,n)=>'Linha '+(batch[Number(n)-2]?.entry.line??n)+':'));}
+   candidate=result.candidate;summary.push(...result.summary);onProgress(Math.min(start+50,chosen.length),chosen.length);
+  }
+  W.validate(candidate);return {candidate,summary,baseline:review.baseline,read:review.read,skipped:review.entries.length-chosen.length};
+ }
+ return {types,fields,plan,template,reviewPlayers,resolvePlayers};
 })();
 if(typeof module!=='undefined')module.exports=CsvImport;

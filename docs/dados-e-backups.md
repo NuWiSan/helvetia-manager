@@ -16,9 +16,11 @@ Em Recuperação, **Criar backup protegido e descarregar** guarda uma cópia que
 
 ## Listas CSV actualizadas
 
-Por agora, exporte os IDs da própria base e conserve-os entre actualizações. Os IDs de outra base não são automaticamente equivalentes. Use NOVO só para pessoas novas e guarde depois o ID atribuído pela aplicação. Campos vazios preservam informação existente; a omissão de uma linha não elimina registos. Rever sempre a pré-visualização. O limite de 200 refere-se a registos alterados, não a campos nem a linhas sem alterações.
+Exporte os IDs da própria base e conserve-os entre actualizações. Os IDs de outra base não são automaticamente equivalentes. A importação de jogadores apresenta existentes, novos/IDs desconhecidos, duvidosos e inválidos. Escolha criar, associar a um ID da Mestre ou ignorar. Conflitos e repetições exigem decisão. Depois reveja as diferenças e confirme a gravação. Campos vazios preservam informação existente; a omissão de uma linha não elimina registos.
 
-A evolução prevista é associar origem + ID externo ao ID interno estável e apresentar novos, actualizados e conflitos antes de guardar. Não utilizar apenas o nome como identificador: pode haver homónimos. Não substituir fotografias ou informação manual só porque faltam num CSV posterior. Importar regularmente listas é uma boa estratégia desde que haja identificação estável, validação e backup.
+Jogadores: até 5000 linhas e 5 MB, processados em lotes de 50 e revistos em páginas de 25, sem o limite anterior de 200 alterações. Outras categorias CSV e edição em massa mantêm os seus limites. Datas DD/MM/AAAA e DD.MM.AAAA são normalizadas e validadas. A confirmação guarda uma cópia protegida da Mestre anterior em Recuperação, neste navegador; não é um download automático.
+
+A associação persistente de origem + ID externo ao ID interno estável ainda é uma evolução prevista. Até lá, um novo registo recebe o ID interno mostrado na revisão: exporte depois o CSV da aplicação para conservar esses IDs. Nomes correspondentes são apenas sugestões: pode haver homónimos. Fotografias e informação manual fora do CSV são preservadas. Importar regularmente listas é uma boa estratégia com identificação estável, validação e backup.
 
 ## GitHub
 
@@ -26,4 +28,4 @@ Código e dados são coisas distintas. GitHub permite consultar o código, vers�
 
 O repositório https://github.com/NuWiSan/helvetia-manager foi criado pelo utilizador como público. Contém o código beta. As alterações no GitHub não são publicadas automaticamente no site. Não colocar backups pessoais, credenciais, node_modules ou bases reais no repositório por defeito. O ZIP inclui o código completo e testes; dist contém a aplicação estática, sem compilação. npm ci e npm test permitem verificar o código.
 
-Se a base contém apenas testes descartáveis, não é necessário enviar um backup para desenvolver o importador. A revisão pode comparar o CSV com a Mestre aberta no próprio navegador. A protecção automática antes de limpar continua activa. A reconciliação de ficheiros externos completos ainda é uma evolução pendente, não uma função já disponível.
+Se a base contém apenas testes descartáveis, não é necessário enviar um backup para desenvolver o importador. A revisão compara o CSV com a Mestre aberta no próprio navegador. A protecção automática antes de limpar continua activa. Consulte também [stage64 e media](stage64-e-media.md).
