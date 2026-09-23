@@ -12,3 +12,13 @@ function clubFoundationMarkup(c){
  const year=String(c.founded||'').match(/^\d{4}/)?.[0];
  return year?`<span title="Fundação: ${esc(c.founded)}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18m-13 4h2m4 0h2"/></svg>${year}</span>`:'';
 }
+function clubNameMarkup(c){
+ const name=String(c.name||'').trim(),split=name.search(/\s/);
+ return `<span class="club-name-accent">${esc(split<0?name:name.slice(0,split))}</span>${split<0?'':' '+esc(name.slice(split).trim())}`;
+}
+function clubActionIcon(action){
+ return `<svg class="club-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${action==='view'?'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>':'<path d="m15 4 5 5M3 21l5-1L21 7a2 2 0 0 0 0-3l-1-1a2 2 0 0 0-3 0L4 16l-1 5Z"/>'}</svg>`;
+}
+function clubLowerWave(){
+ return '<svg class="club-lower-wave" viewBox="0 0 800 240" preserveAspectRatio="none" aria-hidden="true"><path class="club-wave-bed" d="M0 34 C155 5 265 170 450 145 S665 65 800 78 V240 H0Z"/><path class="club-wave-tint" d="M0 34 C155 5 265 170 450 145 S665 65 800 78 L800 103 C650 93 585 193 430 170 S135 36 0 68Z"/><path class="club-wave-contour" d="M0 34 C155 5 265 170 450 145 S665 65 800 78"/><path class="club-wave-echo" d="M0 73 C170 46 275 200 455 174 S670 102 800 117"/></svg>';
+}

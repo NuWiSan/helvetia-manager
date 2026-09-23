@@ -87,6 +87,24 @@ dialog::backdrop {background:#050b12b8;backdrop-filter:blur(3px)}
 @media(prefers-reduced-motion:reduce){button{transition:none}}
 /* v12.25 — artwork stays behind content; metadata icons never size the card. */
 .club-visual-identity{position:relative;z-index:1}
+.club-visual .premium-edge{background:none;box-shadow:inset 0 0 0 1px #ffffff24}
+.club-photo-card.panel{border-width:2px;border-color:var(--card-primary);border-radius:18px}
+.club-visual-large{border:2px solid var(--card-primary);border-radius:18px}
+.club-lower-wave{position:absolute;bottom:0;left:0;width:100%;height:56%;z-index:0;pointer-events:none;overflow:hidden}
+.club-wave-bed{fill:#080d13;fill-opacity:.7}
+.club-wave-tint{fill:var(--card-primary);fill-opacity:.13}
+.club-wave-contour{fill:none;stroke:var(--card-primary);stroke-opacity:.65;stroke-width:1.4}
+.club-wave-echo{fill:none;stroke:var(--card-primary);stroke-opacity:.17;stroke-width:1}
+.club-visual .premium-grain{background:radial-gradient(circle,#fff 0 .45px,transparent .7px);background-size:3px 3px;opacity:.04;mask-image:linear-gradient(transparent 25%,#000 90%)}
+.club-visual .premium-photo .premium-shade{background:linear-gradient(0deg,#070b10eb 0%,#070b1099 20%,#070b1020 44%,transparent 68%)}
+.club-name-accent{color:var(--card-primary);text-shadow:0 2px 4px #000,0 0 2px #ffffff90}
+.club-visual-identity h2,.club-visual-identity h3{color:#fff}
+.club-card-meta svg,.club-detail-meta svg{color:var(--card-primary);filter:drop-shadow(0 1px 2px #000)}
+.club-photo-card .club-card-body{z-index:1;border:0}
+.club-photo-card .toolbar{justify-content:flex-end;border:0}
+.club-photo-card .toolbar button,#clubDetailsEdit{display:inline-flex;align-items:center;justify-content:center;gap:9px}
+.club-action-icon{width:21px;height:21px;flex:0 0 21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.club-photo-card .toolbar button[data-edit]{border-color:var(--card-primary);background:color-mix(in srgb,var(--card-primary) 12%,#0b192650)}
 .club-card-meta,.club-detail-meta{display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:8px 18px;color:#e4eaf0;font-size:14px;line-height:1.4}
 .club-card-meta>span,.club-detail-meta>span{display:inline-flex;align-items:center;gap:7px;min-width:0;overflow-wrap:anywhere}
 .club-card-meta>span:last-child{margin-left:0;text-align:left;max-width:100%}

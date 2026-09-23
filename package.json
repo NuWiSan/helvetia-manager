@@ -1,7 +1,7 @@
 {
   "name": "helvetia-manager",
   "private": true,
-  "version": "12.28.0-beta.1",
+  "version": "12.29.0-beta.1",
   "description": "Static application; development dependencies are used only for tests.",
   "scripts": {
     "test:v12": "node tests/persistence-and-search.cjs",

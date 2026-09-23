@@ -18,6 +18,12 @@ const root=path.resolve(__dirname,'../dist');
  assert.equal(w.getComputedStyle(identity).position,'relative');assert(+w.getComputedStyle(identity).zIndex>+w.getComputedStyle(art).zIndex,'Club text must be above the decorative layer');
  for(const icon of d.querySelectorAll('#clubDetails .club-detail-meta svg')){assert.equal(w.getComputedStyle(icon).width,'20px');assert.equal(w.getComputedStyle(icon).height,'20px');}
  assert.equal(w.getComputedStyle(d.getElementById('clubDetails')).width,'1120px');
+ assert(d.querySelector('#clubDetails .club-lower-wave'));
+ assert.equal(d.querySelector('#clubDetails .club-name-accent').textContent,run('master.clubs[0].name.split(/\\s+/)[0]'));
+ const metadata=[...d.querySelectorAll('#clubDetails .club-detail-meta>span')].map(el=>el.textContent);
+ assert.equal(metadata[0],'1898');assert.equal(metadata[1],run('master.clubs[0].city'));assert.equal(metadata[2],run('master.clubs[0].stadium'));
+ assert(d.querySelector('#clubDetailsEdit .club-action-icon'));
+ assert(!w.getComputedStyle(d.querySelector('#clubDetails .premium-edge')).backgroundImage.includes('gradient'),'No diagonal decorative gradients in club corners');
  d.getElementById('clubDetailsClose').click();
  run(`openPlayer(${p})`);const editor=d.querySelector('#playerEditor .sticker');assert(editor.querySelector('.premium-waves'));assert(editor.querySelector('.premium-watermark'));const list=d.createElement('div');list.innerHTML=run(`playerStickerMarkup(master.players.find(p=>p.id===${p}),master)`);assert.equal(editor.querySelector('.premium-surface').outerHTML,list.querySelector('.premium-surface').outerHTML);assert(editor.querySelector('.sticker-country'));assert(!editor.querySelector('.club-water'));d.getElementById('playerCancel').click();
  run(`edit('staff',${staff})`);assert(d.querySelector('#staffCard .premium-waves'));assert(d.querySelector('#staffCard .premium-watermark'));d.getElementById('recordCancel').click();assert.equal(run('JSON.stringify(master)'),before);

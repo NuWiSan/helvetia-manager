@@ -1,6 +1,6 @@
-# Helvetia Manager v12.28 beta
+# Helvetia Manager v12.29 beta
 
-Importação completa de jogadores com revisão de correspondências, processamento em lotes e gravação protegida. Ver [CHANGELOG-v12.28.md](CHANGELOG-v12.28.md) e [dados e backups](docs/dados-e-backups.md). Todas as versões são beta até indicação em contrário.
+Cartões e ficha do clube com onda suave, nome em duas cores e botões com ícones. Ver [CHANGELOG-v12.29.md](CHANGELOG-v12.29.md) e [dados e backups](docs/dados-e-backups.md). Todas as versões são beta até indicação em contrário.
 
 # Helvetia Manager v12.11
 
