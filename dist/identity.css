@@ -113,3 +113,25 @@ dialog::backdrop {background:#050b12b8;backdrop-filter:blur(3px)}
 #clubDetails .club-visual-large{min-height:340px}
 #clubDetails .club-visual-large .club-visual-identity{min-height:340px;padding:150px 24px 24px}
 @media(max-width:650px){#clubDetails{padding:16px}#clubDetails .club-visual-large,#clubDetails .club-visual-large .club-visual-identity{min-height:300px}#clubDetails .club-visual-large .club-visual-identity{padding:125px 16px 18px}.club-detail-meta{gap:8px 12px}}
+
+/* Visual-only player fallback: neutral footballer when no photo is available.
+   Existing player records and imported images remain untouched. */
+.portrait .player-monogram{
+  position:relative;
+  display:block;
+  width:min(245px,100%);
+  height:100%;
+  margin-inline:auto;
+  font-size:0;
+  line-height:0;
+  color:transparent;
+}
+.portrait .player-monogram::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:url("player-placeholder.svg") center bottom/contain no-repeat;
+  filter:drop-shadow(0 12px 16px #0006);
+  opacity:.82;
+}
+.portrait .player-monogram small{display:none}
